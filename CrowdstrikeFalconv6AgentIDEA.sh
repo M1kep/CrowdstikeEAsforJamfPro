@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Last Edit: 20201114 - jkb
+# Last Edit: 20201102 - jkb
 
 # Report the Crowdstrike agentID of the client if the Crowdstrike Agent if installed
 # Location for Crowdstrike Falcon Sensor v3, v4 and v5 installs is /Library/CS/
@@ -18,17 +18,17 @@ if [ $pkgCount -lt 1 ];
 	elif [ -e /Applications/Falcon.app/Contents/MacOS/Falcon ];
 		# New Falcon install location
 		then
-			idCheck=$(/Applications/Falcon.app/Contents/Resources/falconctl stats | awk '/agentID/ {print $2}' | tr '[:upper:]' '[:lower:]' | sed 's/\-//g')
+			idCheck=$(/Applications/Falcon.app/Contents/Resources/falconctl stats | awk '/agentID/ {print tolower($2)}' | tr -d -)
 	elif [ -e /Library/CS/ ];
 		# Old Falcon Location
 		then
-			verCheck=$(/Library/CS/falconctl stats | awk '/version/ {print $2}' | sed 's/\.//g' | cut -c 1-3)
+			verCheck=$(/Library/CS/falconctl stats | awk '/version/ {print tolower($2)}' | sed 's/\.//g' | cut -c 1-3 | tr -d -)
 			# versions older than 15.36 will report via sysctl
 			if [ $verCheck -ge 536 ];
 			then
-			idCheck=$(/Library/CS/falconctl stats | awk '/agentID/ {print $2}' | tr '[:upper:]' '[:lower:]' | sed 's/\-//g' )
+			idCheck=$(/Library/CS/falconctl stats | awk '/agentID/ {print tolower($2)}' | tr -d -)
 			else
-			idCheck=$(sysctl cs.sensorid | awk '{print $2}' | sed s/\-//g)
+			idCheck=$(sysctl cs.sensorid | awk '{print tolower($2)}' | sed s/\-//g | tr -d -)
 			fi
 	else
 		idCheck="Agent Likely Installed But Not Running"
